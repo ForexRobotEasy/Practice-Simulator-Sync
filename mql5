@@ -1,0 +1,67 @@
+
+// +------------------------------------------------------------------+
+// |                                                   Forex Robot Easy |
+// |                                 Developer's Site: forexroboteasy.com |
+// |                                                    Development: Forex Robot Easy Team |
+// +------------------------------------------------------------------+
+
+// Define necessary input parameters
+input double lotSize = 0.1;                           // Lot size for trading
+input int stopLoss = 50;                              // Stop loss in pips
+input int takeProfit = 100;                           // Take profit in pips
+
+// Define global variables
+int ticket = 0;                                       // Order ticket number
+double entryPrice = 0.0;                              // Entry price of the trade
+
+// +------------------------------------------------------------------+
+// |                                                                  |
+// |            Practice Simulator Sync Trading Algorithm             |
+// |                                                                  |
+// +------------------------------------------------------------------+
+
+void OnTick()
+{
+     // Check if there is an open position
+     if (PositionSelect(Symbol()))
+     {
+          // Check if the position is a buy trade
+          if (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY)
+          {
+               // Check if the price has reached the take profit level
+               if (Ask >= entryPrice + takeProfit * Point)
+               {
+                    ClosePosition(ticket);                     // Close the buy position
+               }
+               // Check if the price has reached the stop loss level
+               else if (Ask <= entryPrice - stopLoss * Point)
+               {
+                    ClosePosition(ticket);                     // Close the buy position
+               }
+          }
+          // Check if the position is a sell trade
+          else if (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_SELL)
+          {
+               // Check if the price has reached the take profit level
+               if (Bid <= entryPrice - takeProfit * Point)
+               {
+                    ClosePosition(ticket);                     // Close the sell position
+               }
+               // Check if the price has reached the stop loss level
+               else if (Bid >= entryPrice + stopLoss * Point)
+               {
+                    ClosePosition(ticket);                     // Close the sell position
+               }
+          }
+     }
+     else
+     {
+          // Open a new buy trade
+          ticket = OrderSend(Symbol(), OP_BUY, lotSize, Ask, 0, 0, 0, 'Buy Trade', 0, 0, Green);
+          entryPrice = Ask;
+          
+          // Open a new sell trade
+          ticket = OrderSend(Symbol(), OP_SELL, lotSize, Bid, 0, 0, 0, 'Sell Trade', 0, 0, Red);
+          entryPrice = Bid;
+     }
+}
